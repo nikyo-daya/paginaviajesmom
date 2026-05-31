@@ -110,3 +110,49 @@ if check_password():
     if fotos_subidas:
         st.success(f"¡Has seleccionado {len(fotos_subidas)} fotos listas para guardar!")
         # Aquí es donde pondremos la magia para enviarlas a la base de datos
+
+
+ #  ---SECCION 5: GUARDAR DATOS EN SUPABASE ---
+ 
+st.divider()
+st.subheader("Guardar Datos en la Base de Datos")   
+if st.button("Guardar Viaje"):
+        # Aquí es donde escribiríamos la lógica para guardar los datos en Supabase
+        st.success("¡Datos guardados exitosamente en la base de datos!")
+
+        if st.button("Guardar Viaje Completo"):
+    
+    # 1. Empaquetamos los datos principales del viaje
+         datos_del_viaje = {
+        "destino": destino,
+        "fecha_salida": str(fecha_salida), # Convertimos la fecha a texto
+        "fecha_regreso": str(fecha_regreso),
+        "vehiculo": vehiculo
+    }
+    
+    # 2. Convertimos tu tabla de pagos a un formato que Supabase entienda (Diccionarios)
+datos_pagos = pagos_ingresados.to_dict(orient="records")
+    
+    # 3. Enviamos los datos a Supabase
+try:
+        # Guardamos el viaje en una tabla llamada 'viajes' (que debes crear en Supabase)
+        respuesta_viaje = supabase.table("viajes").insert(datos_del_viaje).execute()
+        
+        st.success("¡El viaje se guardó correctamente!")
+        st.balloons() # ¡Un poco de celebración visual!
+        
+except Exception as e:
+        st.error(f"Hubo un error al guardar: {e}")
+
+        st.subheader("Historial de Viajes Guardados")
+
+# 1. Traemos la lista de todos los viajes desde Supabase
+viajes_guardados = supabase.table("viajes").select("*").execute()
+
+if viajes_guardados.data:
+    # 2. Creamos una lista con los nombres de los destinos para el menú
+    opciones = [viaje["destino"] for viaje in viajes_guardados.data]
+    viaje_seleccionado = st.selectbox("Selecciona un viaje para revisar:", opciones)
+    
+    # 3. Aquí buscarías los asientos y pagos que corresponden a ESE viaje seleccionado
+    # y los mostrarías en la pantalla.
