@@ -62,7 +62,7 @@ if check_password():
     elif "13" in vehiculo: filas = 13
     elif "Microbús" in vehiculo: filas = 5 # Ejemplo más pequeño
     
-    # Creamos una tabla vacía
+    # Creamos una tabla vacía con nombres de columnas ÚNICOS
     tabla_asientos = pd.DataFrame(
         [["" for _ in range(5)] for _ in range(filas)], 
         columns=["Asiento Izq. V", "Asiento Izq. C", "Pasillo Centro", "Asiento Der. C", "Asiento Der. V"]
@@ -83,7 +83,7 @@ if check_password():
         columns=["Pasajero", "Total a Pagar (Q)", "1er Pago", "2do Pago"]
     )
     
-    # num_rows="dynamic" le pone un botón con un "+" para que tu mamá agregue cuantas filas quiera
+    # num_rows="dynamic" le pone un botón con un "+" para agregar cuantas filas quiera
     pagos_ingresados = st.data_editor(tabla_pagos, num_rows="dynamic", use_container_width=True)
     
     # --- CÁLCULOS MATEMÁTICOS AUTOMÁTICOS ---
@@ -101,47 +101,58 @@ if check_password():
         st.divider()
     
     # --- SECCIÓN 4: GALERÍA DEL VIAJE ---
-    st.subheader("Recuerdos del Viaje ")
+    st.subheader("Recuerdos del Viaje 📸")
     st.write("Estas fotos son el recuerdo de un viaje increíble.")
     
     # Esto crea un botón que abre la galería del celular o el explorador de archivos
     fotos_subidas = st.file_uploader("Selecciona tus fotos", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
-
+    
     if fotos_subidas:
         st.success(f"¡Has seleccionado {len(fotos_subidas)} fotos listas para guardar!")
-        # Aquí es donde pondremos la magia para enviarlas a la base de datos
 
     # --- SECCION 5: GUARDAR DATOS EN SUPABASE ---
     st.divider()
-    st.subheader("Guardar Datos en la Base de Datos")
+    st.subheader("Guardar Datos en la Base de Datos")   
 
+    # 1. Botón para guardar el viaje
     if st.button("Guardar Viaje"):
+        
+        # 2. Empaquetamos los datos principales del viaje
         datos_del_viaje = {
             "destino": destino,
-            "fecha_salida": str(fecha_salida),
+            "fecha_salida": str(fecha_salida), # Convertimos la fecha a texto
             "fecha_regreso": str(fecha_regreso),
             "vehiculo": vehiculo
         }
-
+        
+        # 3. Convertimos tu tabla de pagos a un formato que Supabase entienda
         datos_pagos = pagos_ingresados.to_dict(orient="records")
-
+        
+        # 4. Enviamos los datos a Supabase
         try:
             respuesta_viaje = supabase.table("viajes").insert(datos_del_viaje).execute()
             st.success("¡El viaje se guardó correctamente en la base de datos!")
-            st.balloons()
+            st.balloons() # ¡Celebración visual!
+            
         except Exception as e:
             st.error(f"Hubo un error al guardar: {e}")
 
+    # --- SECCION 6: HISTORIAL DE VIAJES ---
     st.divider()
     st.subheader("Historial de Viajes Guardados")
 
     try:
+        # Traemos la lista de todos los viajes desde Supabase
         viajes_guardados = supabase.table("viajes").select("*").execute()
 
         if viajes_guardados.data:
+            # Creamos una lista con los nombres de los destinos para el menú
             opciones = [viaje["destino"] for viaje in viajes_guardados.data]
             viaje_seleccionado = st.selectbox("Selecciona un viaje para revisar:", opciones)
+            
+            # Aquí más adelante agregaremos la lógica para ver los asientos y pagos de este viaje
         else:
             st.info("Aún no hay viajes guardados.")
+            
     except Exception as e:
         st.error("No se pudo cargar el historial. Revisa tu conexión a Supabase o si la tabla 'viajes' existe.")
