@@ -65,8 +65,9 @@ if check_password():
     # Creamos una tabla vacía
     tabla_asientos = pd.DataFrame(
         [["" for _ in range(5)] for _ in range(filas)], 
-        columns=["Asiento Izq.", "Asiento Centro", "Pasillo Centro", "Asiento Der.", "Asiento Der."]
+        columns=["Asiento Izq. V", "Asiento Izq. C", "Pasillo Centro", "Asiento Der. C", "Asiento Der. V"]
     )
+    st.write("V = Ventana, C = Centro")
     
     # st.data_editor hace que la tabla sea interactiva ¡Tu mamá puede escribir directamente en ella!
     matriz_interactiva = st.data_editor(tabla_asientos, use_container_width=True)
