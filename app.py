@@ -6,7 +6,7 @@ st.set_page_config(page_title="Para mi Mom", page_icon="✈️")
 # Sistema de contraseña simple
 def check_password():
     def password_entered():
-        if st.session_state["password"] == "HolaMom123": # La contraseña que le darás a tu mamá
+        if st.session_state["password"] == st.secrets["password_secreta"]:
             st.session_state["password_correct"] = True
             del st.session_state["password"]  # Por seguridad
         else:
