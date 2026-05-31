@@ -3,8 +3,8 @@ import pandas as pd
 from supabase import create_client, Client
 
 # Conectar a Supabase usando las llaves secretas
-url = st.secrets["https://zeabysvgtvvxpjvcijpy.supabase.co/rest/v1/"]
-key = st.secrets["sb_publishable_eL95IB4Fjkq1Q-2A0jc2kg_zrn_rbGh"]
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
 supabase: Client = create_client(url, key)
 
 # Configuración básica de la página
