@@ -31,10 +31,10 @@ def check_password():
 
 # Aquí empieza tu página real
 if check_password():
-    st.title("🚐 Administrador de Viajes")
+    st.title("Administrador de Viajes")
     
     # --- SECCIÓN 1: DATOS DEL VIAJE ---
-    st.subheader("1. Detalles del Destino")
+    st.subheader("Detalles del Viaje")
     destino = st.text_input("¿A dónde vamos?")
     
     col1, col2 = st.columns(2) # Esto divide la pantalla en dos columnas
@@ -46,7 +46,7 @@ if check_password():
     st.divider() # Línea separadora
 
     # --- SECCIÓN 2: VEHÍCULO Y ASIENTOS (LA MATRIZ) ---
-    st.subheader("2. Transporte y Asientos")
+    st.subheader("Transporte y Asientos")
     
     # Menú desplegable para elegir el bus
     vehiculo = st.selectbox(
@@ -54,7 +54,7 @@ if check_password():
         ["Bus de 11 filas", "Bus de 12 filas", "Bus de 13 filas", "Microbús", "Bus de viaje (Amarillo)"]
     )
     
-    st.write("**Mapa de Asientos:** Escribe el nombre para ocupar el asiento, o déjalo vacío si está libre.")
+    st.write("**Mapa de Asientos**")
     
     # Lógica para crear la matriz de asientos dependiendo del bus
     filas = 11
@@ -64,8 +64,8 @@ if check_password():
     
     # Creamos una tabla vacía
     tabla_asientos = pd.DataFrame(
-        [["" for _ in range(4)] for _ in range(filas)], 
-        columns=["Ventana Izq.", "Pasillo Izq.", "Pasillo Der.", "Ventana Der."]
+        [["" for _ in range(5)] for _ in range(filas)], 
+        columns=["Asiento Izq.", "Asiento Centro", "Pasillo Centro", "Asiento Der.", "Asiento Der."]
     )
     
     # st.data_editor hace que la tabla sea interactiva ¡Tu mamá puede escribir directamente en ella!
@@ -74,8 +74,8 @@ if check_password():
     st.divider()
 
     # --- SECCIÓN 3: CONTROL DE PAGOS ---
-    st.subheader("3. Finanzas y Pagos")
-    st.write("Agrega a los pasajeros. Llena el Total, Pago 1 y Pago 2. ¡El sistema calcula el resto solo!")
+    st.subheader("Finanzas y Pagos")
+    st.write("Agrega a los pasajeros.")
     
     # Creamos una tabla base para los cobros
     tabla_pagos = pd.DataFrame(
@@ -94,14 +94,14 @@ if check_password():
         pagos_ingresados["Total Pagado"] = pagos_ingresados["1er Pago"] + pagos_ingresados["2do Pago"]
         pagos_ingresados["Falta por Pagar"] = pagos_ingresados["Total a Pagar (Q)"] - pagos_ingresados["Total Pagado"]
         
-        st.write("**💰 Resumen de Cuentas (Actualizado automáticamente):**")
+        st.write("**Resumen de Cuentas (Actualizado automáticamente):**")
         # st.dataframe muestra una tabla de solo lectura para ver los resultados
         st.dataframe(pagos_ingresados, use_container_width=True)
         st.divider()
     
     # --- SECCIÓN 4: GALERÍA DEL VIAJE ---
-    st.subheader("4. Recuerdos del Viaje 📸")
-    st.write("Sube las fotos de este destino para guardarlas en el historial.")
+    st.subheader("Recuerdos del Viaje ")
+    st.write("Estas fotos son el recuerdo de un viaje increíble.")
     
     # Esto crea un botón que abre la galería del celular o el explorador de archivos
     fotos_subidas = st.file_uploader("Selecciona tus fotos", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
