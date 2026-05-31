@@ -29,87 +29,84 @@ def check_password():
     else:
         return True
 
+# Aquí empieza tu página real
 if check_password():
     st.title("Administrador de Viajes")
-
+    
     # --- SECCIÓN 1: DATOS DEL VIAJE ---
     st.subheader("Detalles del Viaje")
     destino = st.text_input("¿A dónde vamos?")
-
-    col1, col2 = st.columns(2)
+    
+    col1, col2 = st.columns(2) # Esto divide la pantalla en dos columnas
     with col1:
         fecha_salida = st.date_input("Fecha de salida")
     with col2:
         fecha_regreso = st.date_input("Fecha de regreso")
 
-    st.divider()
+    st.divider() # Línea separadora
 
     # --- SECCIÓN 2: VEHÍCULO Y ASIENTOS (LA MATRIZ) ---
     st.subheader("Transporte y Asientos")
-
+    
+    # Menú desplegable para elegir el bus
     vehiculo = st.selectbox(
-        "Elige el vehículo:",
+        "Elige el vehículo:", 
         ["Bus de 11 filas", "Bus de 12 filas", "Bus de 13 filas", "Microbús", "Bus de viaje (Amarillo)"]
     )
-
+    
+    st.write("**Mapa de Asientos**")
+    
+    # Lógica para crear la matriz de asientos dependiendo del bus
     filas = 11
-    if "12" in vehiculo:
-        filas = 12
-    elif "13" in vehiculo:
-        filas = 13
-    elif "Microbús" in vehiculo:
-        filas = 5
-
-    st.write("**Selecciona los asientos para los pasajeros:**")
-
-    for i in range(filas):
-        col1, col2, pasillo, col3, col4 = st.columns([1, 1, 0.5, 1, 1])
-        with col1:
-            st.checkbox(f"💺 {i+1}A", key=f"{i}_A")
-        with col2:
-            st.checkbox(f"💺 {i+1}B", key=f"{i}_B")
-        with pasillo:
-            st.write(" ")
-        with col3:
-            st.checkbox(f"💺 {i+1}C", key=f"{i}_C")
-        with col4:
-            st.checkbox(f"💺 {i+1}D", key=f"{i}_D")
-
-    st.divider()
-
-    asientos_seleccionados = []
-    for key, value in st.session_state.items():
-        if value is True and key.endswith(('_A', '_B', '_C', '_D')):
-            asientos_seleccionados.append(key.replace("_", ""))
-
-    st.info(f"Asientos seleccionados actualmente: {', '.join(asientos_seleccionados)}")
+    if "12" in vehiculo: filas = 12
+    elif "13" in vehiculo: filas = 13
+    elif "Microbús" in vehiculo: filas = 5 # Ejemplo más pequeño
+    
+    # Creamos una tabla vacía
+    tabla_asientos = pd.DataFrame(
+        [["" for _ in range(5)] for _ in range(filas)], 
+        columns=["Asiento Izq. V", "Asiento Izq. C", "Pasillo Centro", "Asiento Der. C", "Asiento Der. V"]
+    )
+    st.write("V = Ventana, C = Centro")
+    
+    # st.data_editor hace que la tabla sea interactiva ¡Tu mamá puede escribir directamente en ella!
+    matriz_interactiva = st.data_editor(tabla_asientos, use_container_width=True)
 
     st.divider()
 
     # --- SECCIÓN 3: CONTROL DE PAGOS ---
     st.subheader("Finanzas y Pagos")
     st.write("Agrega a los pasajeros.")
-
+    
+    # Creamos una tabla base para los cobros
     tabla_pagos = pd.DataFrame(
         columns=["Pasajero", "Total a Pagar (Q)", "1er Pago", "2do Pago"]
     )
-
+    
+    # num_rows="dynamic" le pone un botón con un "+" para que tu mamá agregue cuantas filas quiera
     pagos_ingresados = st.data_editor(tabla_pagos, num_rows="dynamic", use_container_width=True)
-
+    
+    # --- CÁLCULOS MATEMÁTICOS AUTOMÁTICOS ---
     if not pagos_ingresados.empty:
-        pagos_ingresados = pagos_ingresados.fillna(0)
+        # Convertimos los espacios vacíos en ceros para poder sumar
+        pagos_ingresados = pagos_ingresados.fillna(0) 
+        
+        # Le decimos a Python cómo calcular las sumas y las restas
         pagos_ingresados["Total Pagado"] = pagos_ingresados["1er Pago"] + pagos_ingresados["2do Pago"]
         pagos_ingresados["Falta por Pagar"] = pagos_ingresados["Total a Pagar (Q)"] - pagos_ingresados["Total Pagado"]
-
+        
         st.write("**Resumen de Cuentas (Actualizado automáticamente):**")
+        # st.dataframe muestra una tabla de solo lectura para ver los resultados
         st.dataframe(pagos_ingresados, use_container_width=True)
         st.divider()
-
+    
     # --- SECCIÓN 4: GALERÍA DEL VIAJE ---
-    st.subheader("Recuerdos del Viaje")
+    st.subheader("Recuerdos del Viaje ")
     st.write("Estas fotos son el recuerdo de un viaje increíble.")
-
+    
+    # Esto crea un botón que abre la galería del celular o el explorador de archivos
     fotos_subidas = st.file_uploader("Selecciona tus fotos", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+    
     if fotos_subidas:
         st.success(f"¡Has seleccionado {len(fotos_subidas)} fotos listas para guardar!")
         # Aquí es donde pondremos la magia para enviarlas a la base de datos
