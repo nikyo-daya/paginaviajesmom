@@ -113,46 +113,50 @@ if check_password():
 
 
  #  ---SECCION 5: GUARDAR DATOS EN SUPABASE ---
- 
+
 st.divider()
 st.subheader("Guardar Datos en la Base de Datos")   
-if st.button("Guardar Viaje"):
-        # Aquí es donde escribiríamos la lógica para guardar los datos en Supabase
-        st.success("¡Datos guardados exitosamente en la base de datos!")
 
-        if st.button("Guardar Viaje Completo"):
+# 1. Solo necesitamos un botón. Todo lo que pase al presionarlo debe tener sangría (estar a la derecha).
+if st.button("Guardar Viaje"):
     
-    # 1. Empaquetamos los datos principales del viaje
-         datos_del_viaje = {
+    # 2. Empaquetamos los datos principales del viaje
+    datos_del_viaje = {
         "destino": destino,
         "fecha_salida": str(fecha_salida), # Convertimos la fecha a texto
         "fecha_regreso": str(fecha_regreso),
         "vehiculo": vehiculo
     }
     
-    # 2. Convertimos tu tabla de pagos a un formato que Supabase entienda (Diccionarios)
-datos_pagos = pagos_ingresados.to_dict(orient="records")
+    # 3. Convertimos tu tabla de pagos a un formato que Supabase entienda
+    datos_pagos = pagos_ingresados.to_dict(orient="records")
     
-    # 3. Enviamos los datos a Supabase
-try:
-        # Guardamos el viaje en una tabla llamada 'viajes' (que debes crear en Supabase)
+    # 4. Enviamos los datos a Supabase
+    try:
         respuesta_viaje = supabase.table("viajes").insert(datos_del_viaje).execute()
+        st.success("¡El viaje se guardó correctamente en la base de datos!")
+        st.balloons() # ¡Celebración visual!
         
-        st.success("¡El viaje se guardó correctamente!")
-        st.balloons() # ¡Un poco de celebración visual!
-        
-except Exception as e:
+    except Exception as e:
         st.error(f"Hubo un error al guardar: {e}")
 
-        st.subheader("Historial de Viajes Guardados")
+st.divider()
 
-# 1. Traemos la lista de todos los viajes desde Supabase
-viajes_guardados = supabase.table("viajes").select("*").execute()
+# ESTO VA AFUERA DEL BOTÓN (pegado a la izquierda) para que el historial siempre sea visible
+st.subheader("Historial de Viajes Guardados")
 
-if viajes_guardados.data:
-    # 2. Creamos una lista con los nombres de los destinos para el menú
-    opciones = [viaje["destino"] for viaje in viajes_guardados.data]
-    viaje_seleccionado = st.selectbox("Selecciona un viaje para revisar:", opciones)
-    
-    # 3. Aquí buscarías los asientos y pagos que corresponden a ESE viaje seleccionado
-    # y los mostrarías en la pantalla.
+try:
+    # Traemos la lista de todos los viajes desde Supabase
+    viajes_guardados = supabase.table("viajes").select("*").execute()
+
+    if viajes_guardados.data:
+        # Creamos una lista con los nombres de los destinos para el menú
+        opciones = [viaje["destino"] for viaje in viajes_guardados.data]
+        viaje_seleccionado = st.selectbox("Selecciona un viaje para revisar:", opciones)
+        
+        # Aquí más adelante agregaremos la lógica para ver los asientos y pagos de este viaje
+    else:
+        st.info("Aún no hay viajes guardados.")
+        
+except Exception as e:
+    st.error("No se pudo cargar el historial. Revisa tu conexión a Supabase o si la tabla 'viajes' existe.")
